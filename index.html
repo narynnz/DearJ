@@ -512,16 +512,16 @@
 
   <script>
 
-    // ==========================================
+// ==========================================
     // 0. COUNTDOWN LOGIC (NEW)
     // ==========================================
     const countdownOverlay = document.getElementById('countdown-overlay');
     
-    // ตั้งเวลาเป็นวันที่ 27 มีนาคม 2026 เวลา 12:00:00 (เวลาประเทศไทย)
-    const targetDate = new Date("2026-03-20T00:40:00+07:00").getTime(); 
+    // ตั้งเวลาเป็นวันที่ 27 มีนาคม 2026 เวลา 00:33:00 (เวลาประเทศไทย)
+    const targetDate = new Date("2026-03-27T01:15:00+07:00").getTime(); 
     let isCountdownActive = true;
+    let mainCountdownTimer;
 
-    // แยกฟังก์ชันออกมาเพื่อให้รันครั้งแรกทันทีตอนเปิดเว็บ
     function updateCountdownTimer() {
         const now = new Date().getTime();
         const distance = targetDate - now;
@@ -530,6 +530,7 @@
             clearInterval(mainCountdownTimer);
             isCountdownActive = false;
             
+            // หมดเวลาตอนที่เปิดเว็บทิ้งไว้พอดี -> ให้ค่อยๆ เฟดออก
             countdownOverlay.classList.add('opacity-0');
             countdownOverlay.style.pointerEvents = 'none';
             setTimeout(() => {
@@ -549,11 +550,17 @@
         document.getElementById("cd-seconds").innerText = seconds.toString().padStart(2, '0');
     }
 
-    // รันครั้งแรกทันทีเมื่อโหลดโค้ดเสร็จ (แก้ปัญหาตัวเลขไม่ขึ้น 1 วิแรก)
-    updateCountdownTimer();
-    
-    // รันซ้ำทุกๆ 1 วินาที
-    const mainCountdownTimer = setInterval(updateCountdownTimer, 1000);
+    // เช็คเวลาตั้งแต่โหลดหน้าเว็บครั้งแรก!
+    if (new Date().getTime() >= targetDate) {
+        // ถ้าเลยกำหนดเวลาไปแล้ว -> ปิดหน้า Countdown ทันที ไม่ต้องโชว์
+        isCountdownActive = false;
+        countdownOverlay.style.display = 'none';
+    } else {
+        // ถ้ายังไม่ถึงเวลา -> เริ่มรันตัวนับถอยหลัง
+        updateCountdownTimer();
+        mainCountdownTimer = setInterval(updateCountdownTimer, 1000);
+    }
+    // ==========================================
 
     // ==========================================
 
@@ -955,7 +962,7 @@
                     formBtn.textContent = "ทำแบบประเมิน";
                     formBtn.className = "px-6 py-2 md:py-3 text-sm md:text-base bg-red-600 text-white rounded-full hover:bg-red-800 transition font-bold shadow-lg";
                     formBtn.onclick = () => {
-                        window.open('https://forms.gle/CLfrDNTG4448V5236', '_blank');
+                        window.open('https://docs.google.com/forms/d/e/1FAIpQLSe2gv19JQxFXUnhLpiSsUVfpTCXtJdKvgx4-AO4wWr_a07a0g/viewform?usp=preview', '_blank');
                     };
 
                     const homeBtn = document.createElement("button");
