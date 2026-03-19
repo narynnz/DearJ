@@ -186,7 +186,33 @@
           <div class="absolute inset-0 bg-black/40 md:bg-black/40 z-10 backdrop-blur-[2px]"></div>
       </div>
 
-            <div class="relative z-20 space-y-6 text-center px-6 max-w-sm md:max-w-none items-center">
+    <div id="countdown-overlay" class="fixed inset-0 bg-black flex flex-col items-center justify-center text-white transition-opacity duration-1000" style="z-index: 9999;">
+        <img src="https://dearj.b-cdn.net/Logo-Darft-3.png" class="w-[200px] md:w-[350px] mb-8 drop-shadow-lg" alt="Dear J Logo">
+        <h1 class="text-xl md:text-3xl font-bold mb-8 text-gray-300">เตรียมพบกับภาพยนตร์สั้นแบบทางเลือกเร็วๆ นี้</h1>
+        <div class="flex gap-3 md:gap-6 text-center">
+            <div class="flex flex-col bg-neutral-900 px-4 py-3 md:px-6 md:py-4 rounded-lg shadow-lg border border-red-900/50">
+                <span id="cd-days" class="text-4xl md:text-6xl font-bold text-white">00</span>
+                <span class="text-xs md:text-sm text-gray-400 mt-1">วัน</span>
+            </div>
+            <div class="text-3xl md:text-5xl font-bold text-gray-600 mt-2">:</div>
+            <div class="flex flex-col bg-neutral-900 px-4 py-3 md:px-6 md:py-4 rounded-lg shadow-lg border border-red-900/50">
+                <span id="cd-hours" class="text-4xl md:text-6xl font-bold text-white">00</span>
+                <span class="text-xs md:text-sm text-gray-400 mt-1">ชั่วโมง</span>
+            </div>
+            <div class="text-3xl md:text-5xl font-bold text-gray-600 mt-2">:</div>
+            <div class="flex flex-col bg-neutral-900 px-4 py-3 md:px-6 md:py-4 rounded-lg shadow-lg border border-red-900/50">
+                <span id="cd-minutes" class="text-4xl md:text-6xl font-bold text-white">00</span>
+                <span class="text-xs md:text-sm text-gray-400 mt-1">นาที</span>
+            </div>
+            <div class="text-3xl md:text-5xl font-bold text-gray-600 mt-2">:</div>
+            <div class="flex flex-col bg-neutral-900 px-4 py-3 md:px-6 md:py-4 rounded-lg shadow-lg border border-red-900/50">
+                <span id="cd-seconds" class="text-4xl md:text-6xl font-bold text-red-500">00</span>
+                <span class="text-xs md:text-sm text-gray-400 mt-1">วินาที</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="relative z-20 space-y-6 text-center px-6 max-w-sm md:max-w-none items-center">
                 <div>
                     <h1 class="text-xl sm:text-2xl md:text-3xl font-bold">
                         ภาพยนตร์สั้นแบบทางเลือกบนเว็บไซต์ปฏิสัมพันธ์ เรื่อง
@@ -194,7 +220,7 @@
                 </div>
                 <div>
                     <picture>
-                        <img src="https://dearj.b-cdn.net/Logo-Darft-3.png" class="w-full max-w-[300px] md:max-w-[500px] h-auto my-4 mx-auto">
+                        <img src="https://dearj.b-cdn.net/Logo-Darft-3.png" class="w-full max-w-[300px] md:max-w-[500px] h-auto my-4 mx-auto" alt="Logo">
                     </picture>
                 </div>
                 <p class="text-lg md:text-xl font-light text-gray-300 tracking-wide leading-relaxed drop-shadow-lg">
@@ -209,6 +235,7 @@
                 </div>
             </div>
     </div>
+
 
     <header id="navbar" class="fixed top-0 left-0 right-0 bg-black/60 px-4 md:px-6 py-2 flex justify-between sm:justify-start sm:gap-10 items-center z-50 transition-all duration-500 transform -translate-y-full opacity-0"> 
         <a href="#home" id="logoBtn" class="logo cursor-pointer">
@@ -272,7 +299,7 @@
         <div id="videoContainer" class="relative w-full max-w-7xl shadow-2xl bg-black">
 
           <div id="loadingSpinner" class="hidden absolute inset-0 z-50 flex items-center justify-center bg-black">
-                <div class="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-   spin">          </div>
+                <div class="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin">         </div>
           </div>
 
           <video id="videoPlayer" 
@@ -485,8 +512,50 @@
 
   <script>
 
-    // เปลี่ยน 'https://yourname.b-cdn.net/' เป็น Link Host name จริงที่ได้จาก Bunny.net
-    //const BASE_URL = 'https://dearj.b-cdn.net/';
+    // ==========================================
+    // 0. COUNTDOWN LOGIC (NEW)
+    // ==========================================
+    const countdownOverlay = document.getElementById('countdown-overlay');
+    
+    // ตั้งเวลาเป็นวันที่ 27 มีนาคม 2026 เวลา 12:00:00 (เวลาประเทศไทย)
+    const targetDate = new Date("2026-03-20T00:40:00+07:00").getTime(); 
+    let isCountdownActive = true;
+
+    // แยกฟังก์ชันออกมาเพื่อให้รันครั้งแรกทันทีตอนเปิดเว็บ
+    function updateCountdownTimer() {
+        const now = new Date().getTime();
+        const distance = targetDate - now;
+
+        if (distance <= 0) {
+            clearInterval(mainCountdownTimer);
+            isCountdownActive = false;
+            
+            countdownOverlay.classList.add('opacity-0');
+            countdownOverlay.style.pointerEvents = 'none';
+            setTimeout(() => {
+                countdownOverlay.style.display = 'none';
+            }, 1000); 
+            return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        document.getElementById("cd-days").innerText = days.toString().padStart(2, '0');
+        document.getElementById("cd-hours").innerText = hours.toString().padStart(2, '0');
+        document.getElementById("cd-minutes").innerText = minutes.toString().padStart(2, '0');
+        document.getElementById("cd-seconds").innerText = seconds.toString().padStart(2, '0');
+    }
+
+    // รันครั้งแรกทันทีเมื่อโหลดโค้ดเสร็จ (แก้ปัญหาตัวเลขไม่ขึ้น 1 วิแรก)
+    updateCountdownTimer();
+    
+    // รันซ้ำทุกๆ 1 วินาที
+    const mainCountdownTimer = setInterval(updateCountdownTimer, 1000);
+
+    // ==========================================
 
     function moveFlashlight(event) {
         const container = event.currentTarget;
@@ -496,7 +565,6 @@
         const x = event.clientX - containerRect.left;
         const y = event.clientY - containerRect.top;
         
-        // กำหนดตำแหน่ง gradient mask
         overlay.style.maskImage = `radial-gradient(circle 100px at ${x}px ${y}px, rgba(255, 255, 255, 0) 0%, rgba(0, 0, 0, 0.8) 100%)`;
     }
 
@@ -511,6 +579,7 @@
     let hasEntered = false;
 
     function enterWebsite() {
+        if (isCountdownActive) return; // ✅ บล็อคไม่ให้เข้าเว็บถ้ายังนับถอยหลังไม่เสร็จ
         if (hasEntered) return;
         hasEntered = true;
 
@@ -536,7 +605,7 @@
     welcomeOverlay.addEventListener('click', enterWebsite);
     
     window.addEventListener('wheel', (e) => {
-        if (!hasEntered) {
+        if (!hasEntered && !isCountdownActive) { 
             e.preventDefault();
             if (e.deltaY > 0) enterWebsite();
         }
@@ -545,7 +614,7 @@
     let touchStartY = 0;
     window.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; }, { passive: false });
     window.addEventListener('touchmove', (e) => {
-        if (!hasEntered) {
+        if (!hasEntered && !isCountdownActive) { 
             e.preventDefault(); 
             let touchEndY = e.touches[0].clientY;
             if (touchStartY - touchEndY > 50) enterWebsite();
@@ -648,17 +717,9 @@
     });
 
     // --- Helper Functions ---
-    //function preloadNextVideos(urlList) {
-    //    urlList.forEach(url => {
-    //        fetch(url).then(res => {
-    //            if (!res.ok) console.warn("File not found (Preload):", url);
-    //        }).catch(err => console.error("Preload Error:", url));
-    //    });
-    //}
-    
     function preloadNextVideos(urlList) {
         urlList.forEach(url => {
-            fetch(url).then(res => { // แก้บรรทัดนี้
+            fetch(url).then(res => { 
                 if (!res.ok) console.warn("File not found (Preload):", url);
             }).catch(err => console.error("Preload Error:", url));
         });
@@ -837,7 +898,6 @@
 
     function loadAndPlay(src) {
         video.src = src;
-        //video.src = BASE_URL + src; // แก้บรรทัดนี้
         video.currentTime = 0;
         currentScene = src;
         choiceShown = false; 
@@ -869,8 +929,6 @@
         else if (src === "https://dearj.b-cdn.net/PreSceneRoot2A.mp4") preloadNextVideos(["https://dearj.b-cdn.net/Scene2A1Recap.mp4", "https://dearj.b-cdn.net/Scene2A2Recap.mp4", "https://dearj.b-cdn.net/Scene3_1.mp4"]);
         else if (src === "https://dearj.b-cdn.net/PreSceneRoot2B.mp4") preloadNextVideos(["https://dearj.b-cdn.net/Scene2B1Recap.mp4", "https://dearj.b-cdn.net/Scene2B2Recap.mp4", "https://dearj.b-cdn.net/Scene3_1.mp4"]);
         else if (src === "https://dearj.b-cdn.net/Scene3_1.mp4") preloadNextVideos(["https://dearj.b-cdn.net/Scene3A_1.mp4", "https://dearj.b-cdn.net/Scene3B_1.mp4", "https://dearj.b-cdn.net/Scene3C_1.mp4", "https://dearj.b-cdn.net/Scene3D_1.mp4"]);
-        //else if (src === "Scene 3A_1.mp4" || src === "Scene 3B_1.mp4" || src === "Scene 3C_1.mp4") preloadNextVideos(["Scene 4_1.mp4"]);
-        //else if (src === "Scene 4_1.mp4") preloadNextVideos(["Scene 3A_2.mp4", "Scene 3B_2.mp4", "Scene 3C_2.mp4", "Scene 3D_2.mp4"]);
 
         if (["https://dearj.b-cdn.net/WrongEnding_1.mp4","https://dearj.b-cdn.net/TrueEnding_1.mp4"].includes(src)) {
             video.onended = () => {
