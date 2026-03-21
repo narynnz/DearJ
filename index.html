@@ -938,57 +938,103 @@
         else if (src === "https://dearj.b-cdn.net/PreSceneRoot2B.mp4") preloadNextVideos(["https://dearj.b-cdn.net/Scene2B1Recap.mp4", "https://dearj.b-cdn.net/Scene2B2Recap.mp4", "https://dearj.b-cdn.net/Scene3_1.mp4"]);
         else if (src === "https://dearj.b-cdn.net/Scene3_1.mp4") preloadNextVideos(["https://dearj.b-cdn.net/Scene3A_1.mp4", "https://dearj.b-cdn.net/Scene3B_1.mp4", "https://dearj.b-cdn.net/Scene3C_1.mp4", "https://dearj.b-cdn.net/Scene3D_1.mp4"]);
 
-        if (["https://dearj.b-cdn.net/WrongEnding_1.mp4","https://dearj.b-cdn.net/TrueEnding_1.mp4"].includes(src)) {
-            video.onended = () => {
-                if (document.fullscreenElement) { document.exitFullscreen().catch(err => console.log(err)); }
+    if (["https://dearj.b-cdn.net/WrongEnding_1.mp4","https://dearj.b-cdn.net/TrueEnding_1.mp4"].includes(src)) {
+        video.onended = () => {
+            if (document.fullscreenElement) { document.exitFullscreen().catch(err => console.log(err)); }
 
-                video.classList.add('fade-out');
+            video.classList.add('fade-out');
 
-                setTimeout(() => {
-                    const popup = document.createElement("div");
-                    popup.className = "fixed inset-0 bg-black/90 flex flex-col items-center justify-center z-50 fade-in p-4";
-                    
-                    const title = document.createElement("h2");
-                    title.textContent = "บันทึกตั๋วรับชมภาพยนตร์ของคุณ";
-                    title.className = "text-lg md:text-2xl font-bold text-white mb-4 text-center";
-                    
-                    const img = document.createElement("img");
-                    img.src = "https://dearj.b-cdn.net/ticket.png";
-                    img.className = "mb-6 max-h-[50vh] md:max-h-[60vh] w-auto max-w-full shadow-2xl rounded-lg";
-                    
-                    const btnContainer = document.createElement("div");
-                    btnContainer.className = "flex flex-col sm:flex-row gap-4 items-center";
+            setTimeout(() => {
+                const popup = document.createElement("div");
+                popup.className = "fixed inset-0 bg-black/90 flex flex-col items-center justify-center z-50 fade-in p-4";
+                
+                const title = document.createElement("h2");
+                title.textContent = "บันทึกตั๋วรับชมภาพยนตร์ของคุณ";
+                title.className = "text-lg md:text-2xl font-bold text-white mb-4 text-center";
+                
+                const img = document.createElement("img");
+                img.src = "https://dearj.b-cdn.net/ticket.png";
+                img.className = "mb-6 max-h-[50vh] md:max-h-[60vh] w-auto max-w-full shadow-2xl rounded-lg";
+                
+                const btnContainer = document.createElement("div");
+                // ปรับ Flex เป็น wrap หรือลด gap หน่อยเผื่อ 3 ปุ่มบนมือถือจะแน่นไป
+                btnContainer.className = "flex flex-col sm:flex-row flex-wrap justify-center gap-4 items-center";
 
-                    const formBtn = document.createElement("button");
-                    formBtn.textContent = "ทำแบบประเมิน";
-                    formBtn.className = "px-6 py-2 md:py-3 text-sm md:text-base bg-red-600 text-white rounded-full hover:bg-red-800 transition font-bold shadow-lg";
-                    formBtn.onclick = () => {
-                        window.open('https://docs.google.com/forms/d/e/1FAIpQLSe2gv19JQxFXUnhLpiSsUVfpTCXtJdKvgx4-AO4wWr_a07a0g/viewform?usp=preview', '_blank');
-                    };
+                // --- 1. สร้างปุ่มดาวน์โหลด ---
+                const downloadBtn = document.createElement("button");
+                downloadBtn.textContent = "ดาวน์โหลดตั๋ว";
+                // ใช้สีน้ำเงิน (bg-blue-600) ให้ดูโดดเด่นและแตกต่างจากปุ่มอื่น
+                downloadBtn.className = "px-6 py-2 md:py-3 text-sm md:text-base bg-indigo-600 text-white rounded-full hover:bg-blue-800 transition font-bold shadow-lg";
+                downloadBtn.onclick = async () => {
+                    try {
+                        // เปลี่ยนปุ่มเป็นสถานะกำลังโหลดชั่วคราว (Optional)
+                        const originalText = downloadBtn.textContent;
+                        downloadBtn.textContent = "กำลังโหลด...";
+                        downloadBtn.disabled = true;
 
-                    const homeBtn = document.createElement("button");
-                    homeBtn.textContent = "กลับสู่หน้าหลัก";
-                    homeBtn.className = "px-6 py-2 md:py-3 text-sm md:text-base bg-white text-black rounded-full hover:bg-gray-300 transition font-bold shadow-lg";
-                    
-                    homeBtn.onclick = () => {
-                        popup.classList.remove('fade-in'); 
-                        popup.classList.add('fade-out'); 
-                        setTimeout(() => { 
-                            popup.remove();
-                            resetToHome();
-                        }, 500);
-                    };
-                    
-                    btnContainer.appendChild(formBtn);
-                    btnContainer.appendChild(homeBtn);
+                        // ดึงภาพมาเป็น Blob เพื่อบังคับดาวน์โหลด
+                        const response = await fetch("https://dearj.b-cdn.net/ticket.png");
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        
+                        const a = document.createElement("a");
+                        a.style.display = "none";
+                        a.href = url;
+                        a.download = "Movie-Ticket.png"; // ตั้งชื่อไฟล์ที่จะเซฟลงเครื่องได้ตรงนี้
+                        
+                        document.body.appendChild(a);
+                        a.click();
+                        
+                        // คืนค่าหน่วยความจำและลบ element ทิ้ง
+                        window.URL.revokeObjectURL(url);
+                        a.remove();
 
-                    popup.appendChild(title);
-                    popup.appendChild(img);
-                    popup.appendChild(btnContainer);
-                    document.body.appendChild(popup);
-                }, 500);
-            };
-        } 
+                        // คืนค่าปุ่ม
+                        downloadBtn.textContent = originalText;
+                        downloadBtn.disabled = false;
+                    } catch (error) {
+                        console.error("Download failed:", error);
+                        // หาก Fetch ล้มเหลว (เช่น ติดตั้งค่า CORS ของ CDN) ให้ Fallback ไปเปิดแท็บใหม่แทน
+                        window.open("https://dearj.b-cdn.net/ticket.png", "_blank");
+                        downloadBtn.textContent = "ดาวน์โหลดตั๋ว";
+                        downloadBtn.disabled = false;
+                    }
+                };
+
+                // --- 2. ปุ่มแบบประเมิน ---
+                const formBtn = document.createElement("button");
+                formBtn.textContent = "ทำแบบประเมิน";
+                formBtn.className = "px-6 py-2 md:py-3 text-sm md:text-base bg-red-600 text-white rounded-full hover:bg-red-800 transition font-bold shadow-lg";
+                formBtn.onclick = () => {
+                    window.open('https://docs.google.com/forms/d/e/1FAIpQLSe2gv19JQxFXUnhLpiSsUVfpTCXtJdKvgx4-AO4wWr_a07a0g/viewform?usp=preview', '_blank');
+                };
+
+                // --- 3. ปุ่มหน้าหลัก ---
+                const homeBtn = document.createElement("button");
+                homeBtn.textContent = "กลับสู่หน้าหลัก";
+                homeBtn.className = "px-6 py-2 md:py-3 text-sm md:text-base bg-white text-black rounded-full hover:bg-gray-300 transition font-bold shadow-lg";
+                
+                homeBtn.onclick = () => {
+                    popup.classList.remove('fade-in'); 
+                    popup.classList.add('fade-out'); 
+                    setTimeout(() => { 
+                        popup.remove();
+                        resetToHome();
+                    }, 500);
+                };
+                
+                // นำปุ่มใส่ลง Container เรียงตามลำดับ (ดาวน์โหลด -> ประเมิน -> หน้าหลัก)
+                btnContainer.appendChild(downloadBtn);
+                btnContainer.appendChild(formBtn);
+                btnContainer.appendChild(homeBtn);
+
+                popup.appendChild(title);
+                popup.appendChild(img);
+                popup.appendChild(btnContainer);
+                document.body.appendChild(popup);
+            }, 500);
+        };
+    }
         else if (src === "https://dearj.b-cdn.net/Tutorial1.mp4") {
             video.onended = () => {
                 video.classList.add('fade-out');
