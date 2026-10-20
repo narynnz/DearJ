@@ -195,8 +195,8 @@ This project is part of a **Senior Project (CMM 499)** conducted at:
 ### Production Team
 | Name | Role |
 | :--- | :--- |
-| **Kanyawara Prikkhong** (กัญญ์วรา พริกคง) | Producer & UX/UI Designer |
-| **Nalinrat Mahakhunakorn** (นลินรัตน์ มหาคุณากร) | Director & Developer |
+| **Kanwara Prikkong** (กัญญ์วรา พริกคง) | Producer & UX/UI Designer |
+| **Nalinrat Mahakunakorn** (นลินรัตน์ มหาคุณากร) | Director & Developer |
 
 ### Project Advisor
 - **Aj. Natthapong Prasertsang** (อาจารย์ ณัฐพงษ์ ประเสริฐสังข์) Project Advisor
