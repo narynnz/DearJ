@@ -26,10 +26,8 @@ Senior Project (CMM 499) • Division of Computer and Information Technology •
 6. [Getting Started (Local Development)](#getting-started-local-development)
 7. [Available Scripts](#available-scripts)
 8. [Project Structure](#project-structure)
-9. [Routes & Interactive Architecture](#routes--interactive-architecture)
-10. [Building & Deployment](#building--deployment)
-11. [Project Credits & Academic Attribution](#project-credits--academic-attribution)
-12. [Copyright & License](#copyright--license)
+9. [Project Credits & Academic Attribution](#project-credits--academic-attribution)
+10. [Copyright & License](#copyright--license)
 
 ---
 
